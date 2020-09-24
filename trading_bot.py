@@ -3,18 +3,21 @@ import datetime, re, requests, io, time, random, string
 from bs4 import BeautifulSoup
 from credentials import email, password
 
-driver = webdriver.Chrome('/Users/romebell/downloads/chromedriver')
-time.sleep(3)
+driver = webdriver.Chrome('/Users/tannerhleigh/downloads/chromedriver')
+
+# Go to wallmine.com
 driver.get('https://wallmine.com')
-time.sleep(2)
+time.sleep(3)
 
 if 'Make Smarter Investments' in driver.page_source:
+    print('on the right page!')
+    # Sign-in (copy x-path)
     sign_in_link = driver.find_element_by_xpath('/html/body/main/header/div/ul/li[1]/ul/li[3]/a')
     sign_in_link.click()
     time.sleep(3)
-    print('Going to sign in page')
+    print('Going to sign-in page')
 
-if 'Sign in here, please.' in driver.page_source:
+if "Sign in here, please." in driver.page_source:
     login_email = driver.find_element_by_xpath('//*[@id="user_email"]')
     sign_in_password = driver.find_element_by_xpath('//*[@id="new_user"]/div[5]/div[1]/div[2]')
     sign_in_password.click()
@@ -22,24 +25,25 @@ if 'Sign in here, please.' in driver.page_source:
 
 login_password = driver.find_element_by_xpath('//*[@id="user_password"]')
 sign_in_button = driver.find_element_by_xpath('//*[@id="new_user"]/div[5]/div[2]/div[1]/button')
+
 login_email.send_keys(email)
 login_password.send_keys(password)
 sign_in_button.click()
 time.sleep(3)
 
 if 'Stock market overview' in driver.page_source:
-    print('On the main page')
+    print('on the main page!')
     heatmap = driver.find_element_by_xpath('//*[@id="homepage-heatmap"]/a/div[2]')
     heatmap.click()
     time.sleep(2)
 
 overview_tab = driver.find_element_by_xpath('/html/body/main/section/div[5]/div/div/div[1]/div/ul/li[1]/a')
 overview_tab.click()
-time.sleep(3)
+time.sleep(2)
 
-if 'Free Stock Screener' in driver.page_source:
+if 'Free Stock Screen' in driver.page_source:
+    print('on the stock tables!')
     stock_data = driver.find_element_by_xpath('/html/body/main/section/div[5]/div/div/div[2]').text
-
 stock_list = stock_data.split('\n')
 
 # driver.get(f"https://wallmine.com/{x.get('exchange')}/{x.get('symbol')}")
@@ -55,8 +59,6 @@ stock_list = stock_data.split('\n')
 def parse_stock_data(data):
     company_info_parsed = data.split(' $')[0]
     company_info = company_info_parsed.split(' ')
-    
-    
     if 'NASDAQ' in company_info:
         idx = company_info.index('NASDAQ')
         exchange = company_info[idx]
@@ -66,11 +68,9 @@ def parse_stock_data(data):
     elif 'NYSEMKT' in company_info:
         idx = company_info.index('NYSEMKT')
         exchange = company_info[idx]
-        
     industry = " ".join(company_info[idx + 1:])
     symbol = company_info[0]
     company_name = " ".join(company_info[1:idx])
-    
     if 'N/A' in data.split(' $')[1]:
         market_cap_1 = data.split(' $')[1].split(' ')
         market_cap = market_cap_1[0]
@@ -81,7 +81,6 @@ def parse_stock_data(data):
         average_volume = market_cap_1[5]
         institutional_ownership = market_cap_1[6]
         earnings_date = " ".join(market_cap_1[7:])
-        
         price_info = data.split(' $')[2].split(' ')
         price = price_info[0]
         performance_today = price_info[1]
@@ -98,8 +97,6 @@ def parse_stock_data(data):
         price_info = data.split(' $')[3].split(' ')
         price = price_info[0]
         performance_today = price_info[1]
-    
-    
     result = {
         "symbol": symbol,
         "company_name": company_name,
@@ -116,7 +113,6 @@ def parse_stock_data(data):
         "institutional_ownership": institutional_ownership, 
         "earnings_date": earnings_date
     }
-    
     return result
 
 final_list = []
@@ -140,3 +136,6 @@ for i in range(len(stock_list[28:])):
 for each_stock in final_list:
     print(parse_stock_data(each_stock))
     time.sleep(1)
+
+
+
